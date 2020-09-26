@@ -7,6 +7,16 @@
     android:background="@color/colorAccent"
     tools:context=".MainActivity">
 
+    <com.agog.mathdisplay.MTMathView
+        android:id="@+id/mathview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="108dp"
+        app:layout_constraintHorizontal_bias="0.807"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
+
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
