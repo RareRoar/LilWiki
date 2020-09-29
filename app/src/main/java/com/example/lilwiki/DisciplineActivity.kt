@@ -1,5 +1,6 @@
 package com.example.lilwiki
 
+import android.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -17,9 +18,9 @@ class DisciplineActivity : AppCompatActivity() {
         lp.weight = 1F
         button.layoutParams = lp
         button.text = title
-        button.setOnClickListener(View.OnClickListener {
+        button.setOnClickListener {
             toBranchActivity(if (title != "+") title else null)
-        })
+        }
         return button
     }
 
@@ -36,7 +37,6 @@ class DisciplineActivity : AppCompatActivity() {
 
     private fun toBranchActivity(disciplineTitle : String?) {
         val intent = Intent(this, BranchActivity::class.java)
-        //TODO refactor interactivity data transition
         intent.putExtra("disciplineTitle", disciplineTitle)
         startActivity(intent)
     }
