@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "134201396729",
+    "firebase_url": "https://lil-wiki.firebaseio.com",
+    "project_id": "lil-wiki",
+    "storage_bucket": "lil-wiki.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:134201396729:android:11134dc58e097ecb348128",
+        "android_client_info": {
+          "package_name": "com.example.lilwiki"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "134201396729-tc0848oipvnuv506ab08na7uajkaucmc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_0GFrzpe06lU9EcZZcl5gPanPvI00i5A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "134201396729-tc0848oipvnuv506ab08na7uajkaucmc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
