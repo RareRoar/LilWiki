@@ -1,10 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".SelectDisciplineActivity">
 
-  </androidx.constraintlayout.widget.ConstraintLayout>
+    <Spinner
+        android:id="@+id/disciplineSpinner"
+        android:layout_width="290dp"
+        android:layout_height="84dp"
+        android:layout_marginStart="60dp"
+        android:layout_marginTop="128dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ProgressBar
+        android:id="@+id/selectDisciplineProgressBar"
+        android:layout_width="119dp"
+        android:layout_height="121dp"
+        android:layout_marginStart="144dp"
+        android:layout_marginTop="320dp"
+        android:indeterminateDrawable="@drawable/spinner_png"
+        android:indeterminateOnly="true"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/buttonDiscNext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="160dp"
+        android:layout_marginTop="43dp"
+        android:text="@string/next"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/newDisciplineEdit" />
+
+    <EditText
+        android:id="@+id/newDisciplineEdit"
+        android:layout_width="290dp"
+        android:layout_height="76dp"
+        android:layout_marginStart="64dp"
+        android:layout_marginTop="48dp"
+        android:ems="10"
+        android:enabled="false"
+        android:hint="@string/prompt_discipline"
+        android:inputType="textPersonName"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/disciplineSpinner" />
+</androidx.constraintlayout.widget.ConstraintLayout>

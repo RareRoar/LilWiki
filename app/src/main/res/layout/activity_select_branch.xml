@@ -4,6 +4,58 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CreateBranchActivity">
+    tools:context=".SelectBranchActivity">
 
+    <TextView
+        android:id="@+id/chosenDisciplineText"
+        android:layout_width="290dp"
+        android:layout_height="96dp"
+        android:layout_marginStart="60dp"
+        android:layout_marginTop="60dp"
+        android:textSize="25sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Spinner
+        android:id="@+id/branchSpinner"
+        android:layout_width="290dp"
+        android:layout_height="84dp"
+        android:layout_marginStart="60dp"
+        android:layout_marginTop="200dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ProgressBar
+        android:id="@+id/branchProgressBar"
+        android:layout_width="119dp"
+        android:layout_height="121dp"
+        android:layout_marginStart="144dp"
+        android:layout_marginTop="320dp"
+        android:indeterminateDrawable="@drawable/spinner_png"
+        android:indeterminateOnly="true"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/buttonBranchNext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="160dp"
+        android:layout_marginTop="30dp"
+        android:text="@string/next"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/newBranchEdit" />
+
+    <EditText
+        android:id="@+id/newBranchEdit"
+        android:layout_width="290dp"
+        android:layout_height="76dp"
+        android:layout_marginStart="60dp"
+        android:layout_marginTop="40dp"
+        android:ems="10"
+        android:enabled="false"
+        android:hint="@string/prompt_branch"
+        android:inputType="textPersonName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/branchSpinner" />
 </androidx.constraintlayout.widget.ConstraintLayout>

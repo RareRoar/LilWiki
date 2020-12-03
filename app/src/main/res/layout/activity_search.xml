@@ -4,16 +4,26 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".TestActivity">
+    tools:context=".SearchActivity">
 
     <ProgressBar
-        android:layout_width="202dp"
-        android:layout_height="222dp"
-        android:layout_marginStart="88dp"
-        android:layout_marginTop="252dp"
+        android:id="@+id/searchProgressBar"
+        android:layout_width="119dp"
+        android:layout_height="121dp"
+        android:layout_marginStart="144dp"
+        android:layout_marginTop="320dp"
         android:indeterminateDrawable="@drawable/spinner_png"
         android:indeterminateOnly="true"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ListView
+        android:id="@+id/selectedArticles"
+        android:layout_width="415dp"
+        android:layout_height="715dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

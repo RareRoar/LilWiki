@@ -8,14 +8,27 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity android:name=".BranchActivity"></activity>
-        <activity android:name=".DisciplineActivity">
+        android:theme="@style/Theme.AppCompat.DayNight">
+        <activity android:name=".SearchActivity">
+        </activity>
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings" />
+        <activity android:name=".CreateArticleActivity" />
+        <activity android:name=".SelectBranchActivity" />
+        <activity android:name=".SelectDisciplineActivity" />
+        <activity android:name=".CreateAccountActivity" />
+        <activity android:name=".TestActivity" />
+        <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity android:name=".ArticleActivity" />
+        <activity android:name=".BranchActivity" />
+        <activity android:name=".DisciplineActivity">
         </activity>
     </application>
 
