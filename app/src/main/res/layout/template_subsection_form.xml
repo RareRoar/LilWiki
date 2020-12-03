@@ -21,4 +21,10 @@
         android:hint="@string/prompt_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
+
+    <Button
+        android:id="@+id/buttonRemoveSubsForm"
+        android:layout_width="99dp"
+        android:layout_height="wrap_content"
+        android:text="@string/remove" />
 </LinearLayout>

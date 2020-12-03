@@ -7,9 +7,13 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
+import com.agog.mathdisplay.MTMathView
+import kotlinx.android.synthetic.main.activity_article.*
 import kotlinx.android.synthetic.main.activity_create_article.*
 import kotlinx.android.synthetic.main.activity_create_article.view.*
+import kotlinx.android.synthetic.main.template_subsection.view.*
 import kotlinx.android.synthetic.main.template_subsection_form.view.*
 import java.util.*
 
@@ -18,6 +22,7 @@ class CreateArticleActivity : AppCompatActivity() {
     companion object {
         var disciplineTitle : String? = null
         var branchTitle : String? = null
+        var articleTitle : String? = null
     }
 
     private val tag = "CreateArticleActivity"
@@ -25,6 +30,11 @@ class CreateArticleActivity : AppCompatActivity() {
     private lateinit var autoUpdate : Timer
     private val context = this
     private var subsectionFormList = mutableListOf<View>()
+
+    private val subsectionTitleList = mutableListOf<String>()
+    private val subsectionList = mutableListOf<ArticleActivity.Subsection>()
+    private val subsTitleCompStatus = CompletionStatus()
+    private val subsContentCompStatusList = mutableListOf<CompletionStatus>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,20 +46,35 @@ class CreateArticleActivity : AppCompatActivity() {
         dbAdapter = DatabaseAdapter(sharedPrefs.getString(getString(R.string.preferences_key_email),
             "NOT FOUND"))
 
-
         disciplineTitle = intent.getStringExtra("disciplineTitle")
         branchTitle = intent.getStringExtra("branchTitle")
+        articleTitle = intent.getStringExtra("articleTitle")
 
-        val subsForm = layoutInflater.inflate(R.layout.template_subsection_form, createArticleScrollView, false)
-        subsectionFormList.add(subsForm)
-        createArticleScrollView.createArticleScrollContainer.addView(subsForm)
+        if (articleTitle != null) {
+            createArticleEditText.setText(articleTitle)
 
+            dbAdapter.getSubsectionTitleList(subsectionTitleList, subsectionList,
+                ArticleActivity.disciplineTitle.toString(), ArticleActivity.branchTitle.toString(),
+                ArticleActivity.articleTitle.toString(), subsTitleCompStatus)
+        }
+        else {
+            val subsForm = layoutInflater.inflate(
+                R.layout.template_subsection_form,
+                createArticleScrollView, false
+            )
+            subsectionFormList.add(subsForm)
+            createArticleScrollView.createArticleScrollContainer.addView(subsForm)
+        }
         floatingActionButton.setOnClickListener { appendSubsForm() }
         createArticleButton.setOnClickListener { saveArticle() }
     }
 
     private fun appendSubsForm() {
-        val subsForm = layoutInflater.inflate(R.layout.template_subsection_form, createArticleScrollView, false)
+        val subsForm = layoutInflater.inflate(R.layout.template_subsection_form,
+            createArticleScrollView, false)
+        subsForm.buttonRemoveSubsForm.setOnClickListener {
+            createArticleScrollView.createArticleScrollContainer.removeView(subsForm)
+        }
         subsectionFormList.add(subsForm)
         createArticleScrollView.createArticleScrollContainer.addView(subsForm)
     }
@@ -59,9 +84,64 @@ class CreateArticleActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    private fun saveArticle() {
+    override fun onResume() {
+        super.onResume()
+        if (articleTitle != null) {
+            var isContentReadingStarted = false
+            autoUpdate = Timer()
+            autoUpdate.schedule(object : TimerTask() {
+                override fun run() {
+                    if (subsTitleCompStatus.toBoolean()) {
+                        if (isContentReadingStarted) {
+                            var conjugatedCompStatus = true
+                            for (element in subsContentCompStatusList) {
+                                conjugatedCompStatus = conjugatedCompStatus && element.toBoolean()
+                                if (!conjugatedCompStatus)
+                                    break
+                            }
+                            if (conjugatedCompStatus) {
+                                runOnUiThread { fillContent() }
+                                autoUpdate.cancel()
+                            }
+                        } else {
+                            for (subsectionTitle in subsectionTitleList) {
+                                subsContentCompStatusList.add(CompletionStatus())
+                                dbAdapter.getSubsectionContent(
+                                    subsectionList,
+                                    ArticleActivity.disciplineTitle.toString(),
+                                    ArticleActivity.branchTitle.toString(),
+                                    ArticleActivity.articleTitle.toString(),
+                                    subsectionTitle,
+                                    subsContentCompStatusList.last()
+                                )
+                            }
+                            isContentReadingStarted = true
+                        }
+                    }
+                }
+            }, 0, 500)
+        }
+    }
 
-        //Toast.makeText(this, disciplineTitle.toString() + branchTitle.toString() + createArticleEditText.text.toString(), Toast.LENGTH_SHORT).show()
+    private fun fillContent() {
+        subsectionList.sortBy { it.order }
+        var index = 0
+        for (subsection in subsectionList) {
+            val subsForm = layoutInflater.inflate(R.layout.template_subsection_form,
+                createArticleScrollView, false)
+            subsForm.buttonRemoveSubsForm.setOnClickListener {
+                createArticleScrollView.createArticleScrollContainer.removeView(subsForm)
+            }
+
+            subsForm.createArticleSubsTitleEdit.setText(subsection.title)
+            subsForm.createArticleIsLatex.isChecked = subsection.content!!.isLatex
+            subsForm.createArticleSubsText.setText(subsection.content!!.text)
+            subsectionFormList.add(subsForm)
+            createArticleScrollView.createArticleScrollContainer.addView(subsForm)
+        }
+    }
+
+    private fun saveArticle() {
         dbAdapter.setDiscipline(disciplineTitle!!)
         Log.i(tag, disciplineTitle!!);
         dbAdapter.setBranch(branchTitle!!)
@@ -76,6 +156,7 @@ class CreateArticleActivity : AppCompatActivity() {
             dbAdapter.writeInfoToDB()
             index += 1
         }
+        toDisciplineActivity()
     }
 
 }

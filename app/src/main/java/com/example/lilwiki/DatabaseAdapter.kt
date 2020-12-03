@@ -286,7 +286,22 @@ class DatabaseAdapter(userEmail: String?) {
         completionStatus.setFalse()
         discTitleList.clear()
         databaseRef.child("users").child(username).
-        child("disciplineList").
+        addListenerForSingleValueEvent(
+            object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    for (discipline in snapshot.children) {
+                        if (discipline.key.toString() != "disciplineList")
+                            discTitleList.add(discipline.key.toString())
+                    }
+                    completionStatus.setTrue()
+                    Log.i(tag, "Reading complete.")
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.w(tag, "Cannot get branch title list.")
+                }
+            })
+/*child("disciplineList").
         addValueEventListener(
             object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
@@ -306,7 +321,7 @@ class DatabaseAdapter(userEmail: String?) {
                     Log.w(tag, "Cannot get discipline title list.")
                 }
             }
-        )
+        )*/
     }
 
     public fun getBranchTitleList(branchTitleList : MutableList<String>, disciplineTitle: String,
@@ -314,8 +329,23 @@ class DatabaseAdapter(userEmail: String?) {
         completionStatus.setFalse()
         branchTitleList.clear()
         databaseRef.child("users").child(username).
-        child(disciplineTitle).child("branchList").
-        addValueEventListener(
+        child(disciplineTitle).//child("branchList").
+        addListenerForSingleValueEvent(
+            object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    for (branch in snapshot.children) {
+                        if (branch.key.toString() != "branchList")
+                            branchTitleList.add(branch.key.toString())
+                    }
+                    completionStatus.setTrue()
+                    Log.i(tag, "Reading complete.")
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.w(tag, "Cannot get branch title list.")
+                }
+            })
+        /*addValueEventListener(
             object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     var index = 0
@@ -333,7 +363,7 @@ class DatabaseAdapter(userEmail: String?) {
                     Log.w(tag, "Cannot get branch title list.")
                 }
             }
-        )
+        )*/
     }
 
     public fun getArticleTitleList(articleTitleList : MutableList<String>, disciplineTitle: String,
@@ -342,7 +372,22 @@ class DatabaseAdapter(userEmail: String?) {
         articleTitleList.clear()
         databaseRef.child("users").child(username).
         child(disciplineTitle).child(branchTitle).
-        child("articleList").
+                addListenerForSingleValueEvent(
+                    object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        for (article in snapshot.children) {
+                            if (article.key.toString() != "articleList")
+                                articleTitleList.add(article.key.toString())
+                        }
+                        completionStatus.setTrue()
+                        Log.i(tag, "Reading complete.")
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.w(tag, "Cannot get branch title list.")
+                    }
+                })
+        /*child("articleList").
         addValueEventListener(
             object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
@@ -361,7 +406,7 @@ class DatabaseAdapter(userEmail: String?) {
                     Log.w(tag, "Cannot get branch title list.")
                 }
             }
-        )
+        )*/
     }
 
     public fun getSubsectionTitleList(subsectionTitleList : MutableList<String>,
@@ -488,6 +533,12 @@ class DatabaseAdapter(userEmail: String?) {
 
     //TODO update
     //TODO delete
+
+    public fun removeArticle(disciplineTitle: String, branchTitle: String,
+    articleTitle: String) {
+        databaseRef.child("users").child(username).
+        child(disciplineTitle).child(branchTitle).child(articleTitle).removeValue()
+    }
 
 }
 

@@ -33,6 +33,9 @@
     <string name="logout">Log out</string>
     <string name="search">Search</string>
     <string name="search_mode">Search mode</string>
+    <string name="remove">remove</string>
+    <string name="edit">edit</string>
+
 
     <string-array name="search_modes">
         <item>private</item>

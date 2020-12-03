@@ -1,8 +1,11 @@
 package com.example.lilwiki
 
 import android.content.Context
+import android.content.Intent
+import android.opengl.Visibility
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -48,8 +51,6 @@ class ArticleActivity : AppCompatActivity() {
     private val subsTitleCompStatus = CompletionStatus()
     private val subsContentCompStatusList = mutableListOf<CompletionStatus>()
 
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_article)
@@ -64,48 +65,29 @@ class ArticleActivity : AppCompatActivity() {
         dbAdapter = DatabaseAdapter(sharedPrefs.getString(getString(R.string.preferences_key_email),
             "NOT FOUND"))
         if (userName != null) {
+            buttonRemove.isEnabled = false
             dbAdapter = DatabaseAdapter(userName)
         }
         dbAdapter.getSubsectionTitleList(subsectionTitleList, subsectionList,
             disciplineTitle.toString(), branchTitle.toString(), articleTitle.toString(),
             subsTitleCompStatus)
-        /*
-        val latexList = mutableListOf<MTMathView>()
-        val textList = mutableListOf<TextView>()
-        val subsectionTitleList = mutableListOf<TextView>()
-        for (discipline in TempRep.disciplines) {
-            for (branch in discipline.branches) {
-                for (article in branch.articles) {
-                    if (article.title == articleTitle) {
-                        for (subsection in article.subsections) {
-                            val subTitleView = layoutInflater.inflate(R.layout.template_text,
-                                null) as TextView
-                            subTitleView.text = subsection.title
-                            subsectionTitleList.add(subTitleView)
-                            for (latex in subsection.latexs) {
-                                val mathView = layoutInflater.inflate(R.layout.template_latex,
-                                    null) as MTMathView
-                                mathView.latex = latex
-                                latexList.add(mathView)
-                            }
-                            for (text in subsection.texts) {
-                                val textView = layoutInflater.inflate(R.layout.template_text,
-                                    null) as TextView
-                                textView.text = text
-                                textList.add(textView)
-                            }
-                        }
-                        break
-                    }
-                }
-            }
-        }
-        titleView.text = articleTitle
-        val subsectionViewList = mutableListOf<LinearLayout>()
-        for (view in subsectionTitleList) {
-            contentsView.addView(view)
-        }
-*/
+        buttonRemove.setOnClickListener { removeArticle() }
+        buttonEdit.setOnClickListener { editArticle() }
+    }
+
+    private fun editArticle() {
+        val intent = Intent(this, CreateArticleActivity::class.java)
+        intent.putExtra("disciplineTitle", disciplineTitle)
+        intent.putExtra("branchTitle", branchTitle)
+        intent.putExtra("articleTitle", articleTitle)
+        startActivity(intent)
+    }
+
+    private fun removeArticle() {
+        dbAdapter.removeArticle(disciplineTitle.toString(), branchTitle.toString(),
+            articleTitle.toString())
+        val intent = Intent(this, DisciplineActivity::class.java)
+        startActivity(intent)
     }
 
     override fun onResume() {
@@ -142,12 +124,21 @@ class ArticleActivity : AppCompatActivity() {
     }
 
     private fun composeLayout() {
+        if (userName != null) {
+            buttonRemove.isEnabled = false
+            buttonRemove.visibility = Button.INVISIBLE
+            buttonEdit.isEnabled = false
+            buttonEdit.visibility = Button.INVISIBLE
+        }
+        else {
+            buttonRemove.isEnabled = true
+            buttonRemove.visibility = Button.VISIBLE
+            buttonEdit.isEnabled = true
+            buttonEdit.visibility = Button.VISIBLE
+        }
+
         titleView.text = articleTitle
-
         subsectionList.sortBy { it.order }
-
-        //val subsTitleViewList = mutableListOf<TextView>()
-        //val subsViewList = mutableListOf<LinearLayout>()
         var index = 0
         for (subsection in subsectionList) {
             val subTitleView = layoutInflater.inflate(R.layout.template_text,
