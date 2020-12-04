@@ -2,14 +2,15 @@ package com.example.lilwiki
 
 import android.content.Context
 import android.content.Intent
-import android.opengl.Visibility
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.appcompat.app.AppCompatActivity
 import com.agog.mathdisplay.MTMathView
+import com.example.lilwiki.patterns.CompletionStatus
+import com.example.lilwiki.patterns.DatabaseAdapter
 import kotlinx.android.synthetic.main.activity_article.*
 import kotlinx.android.synthetic.main.template_subsection.view.*
 import java.util.*
@@ -112,9 +113,12 @@ class ArticleActivity : AppCompatActivity() {
                     else {
                         for (subsectionTitle in subsectionTitleList) {
                             subsContentCompStatusList.add(CompletionStatus())
-                            dbAdapter.getSubsectionContent(subsectionList, disciplineTitle.toString(),
-                            branchTitle.toString(), articleTitle.toString(), subsectionTitle,
-                            subsContentCompStatusList.last())
+                            dbAdapter.getSubsectionContent(subsectionList,
+                                disciplineTitle.toString(),
+                                branchTitle.toString(),
+                                articleTitle.toString(),
+                                subsectionTitle,
+                                subsContentCompStatusList.last())
                             }
                         isContentReadingStarted = true
                     }
@@ -137,13 +141,15 @@ class ArticleActivity : AppCompatActivity() {
             buttonEdit.visibility = Button.VISIBLE
         }
 
+        articleProgressBar.visibility = ProgressBar.INVISIBLE
+
         titleView.text = articleTitle
         subsectionList.sortBy { it.order }
         var index = 0
         for (subsection in subsectionList) {
             val subTitleView = layoutInflater.inflate(R.layout.template_text,
                 contentsView, false) as TextView
-            val stringContent = "${index}) " + subsection.title
+            val stringContent = "${index + 1}) " + subsection.title
             subTitleView.text = stringContent
             contentsView.addView(subTitleView)
             // TODO roots

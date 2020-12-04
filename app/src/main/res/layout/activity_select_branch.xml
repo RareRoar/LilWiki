@@ -13,6 +13,7 @@
         android:layout_marginStart="60dp"
         android:layout_marginTop="60dp"
         android:textSize="25sp"
+        android:visibility="invisible"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -22,11 +23,12 @@
         android:layout_height="84dp"
         android:layout_marginStart="60dp"
         android:layout_marginTop="200dp"
+        android:visibility="invisible"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ProgressBar
-        android:id="@+id/branchProgressBar"
+        android:id="@+id/selectBranchProgressBar"
         android:layout_width="119dp"
         android:layout_height="121dp"
         android:layout_marginStart="144dp"
@@ -43,6 +45,7 @@
         android:layout_marginStart="160dp"
         android:layout_marginTop="30dp"
         android:text="@string/next"
+        android:visibility="invisible"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/newBranchEdit" />
 
@@ -56,6 +59,7 @@
         android:enabled="false"
         android:hint="@string/prompt_branch"
         android:inputType="textPersonName"
+        android:visibility="invisible"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/branchSpinner" />
 </androidx.constraintlayout.widget.ConstraintLayout>

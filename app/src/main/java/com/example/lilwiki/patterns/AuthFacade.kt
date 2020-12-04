@@ -1,16 +1,12 @@
-package com.example.lilwiki
+package com.example.lilwiki.patterns
 
 
 import android.content.Context
-import android.content.Intent
-import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
 import android.util.Log
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
 import android.widget.Toast
+import com.agog.mathdisplay.render.getSansSerif
+import com.example.lilwiki.R
 import com.google.firebase.auth.*
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
@@ -20,6 +16,7 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 import java.lang.StringBuilder
+
 class AuthFacade(activityParam : AppCompatActivity, tagParam : String) {
 
     private var auth: FirebaseAuth = Firebase.auth
@@ -68,9 +65,9 @@ class AuthFacade(activityParam : AppCompatActivity, tagParam : String) {
         val sharedPref = activity.getSharedPreferences(activity.getString(R.string.shared_prefs_storage_name),
             Context.MODE_PRIVATE) ?: return
         with (sharedPref.edit()) {
-            putString(activity.getString(com.example.lilwiki.R.string.preferences_key_email),
+            putString(activity.getString(R.string.preferences_key_email),
                 "NOT FOUND")
-            putString(activity.getString(com.example.lilwiki.R.string.preferences_key_password),
+            putString(activity.getString(R.string.preferences_key_password),
                 "NOT FOUND")
             apply()
         }
@@ -148,11 +145,14 @@ class AuthFacade(activityParam : AppCompatActivity, tagParam : String) {
 
 
     public fun saveUserInfo(email: String, password: String) {
-        val sharedPref = activity.getSharedPreferences(activity.getString(R.string.shared_prefs_storage_name),
+        val sharedPref = activity.getSharedPreferences(
+            activity.getString(R.string.shared_prefs_storage_name),
             Context.MODE_PRIVATE) ?: return
         with (sharedPref.edit()) {
-            putString(activity.getString(com.example.lilwiki.R.string.preferences_key_email), email)
-            putString(activity.getString(com.example.lilwiki.R.string.preferences_key_password), password)
+            putString(activity.getString(R.string.preferences_key_email),
+                email)
+            putString(activity.getString(R.string.preferences_key_password),
+                password)
             apply()
         }
     }

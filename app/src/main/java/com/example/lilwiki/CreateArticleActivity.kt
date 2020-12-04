@@ -6,14 +6,11 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.LinearLayout
-import android.widget.TextView
-import android.widget.Toast
-import com.agog.mathdisplay.MTMathView
-import kotlinx.android.synthetic.main.activity_article.*
+import android.widget.ProgressBar
+import com.example.lilwiki.patterns.CompletionStatus
+import com.example.lilwiki.patterns.DatabaseAdapter
 import kotlinx.android.synthetic.main.activity_create_article.*
 import kotlinx.android.synthetic.main.activity_create_article.view.*
-import kotlinx.android.synthetic.main.template_subsection.view.*
 import kotlinx.android.synthetic.main.template_subsection_form.view.*
 import java.util.*
 
@@ -31,6 +28,7 @@ class CreateArticleActivity : AppCompatActivity() {
     private val context = this
     private var subsectionFormList = mutableListOf<View>()
 
+    private var subsectionTitleListToRemove = mutableListOf<String>()
     private val subsectionTitleList = mutableListOf<String>()
     private val subsectionList = mutableListOf<ArticleActivity.Subsection>()
     private val subsTitleCompStatus = CompletionStatus()
@@ -44,7 +42,7 @@ class CreateArticleActivity : AppCompatActivity() {
             Context.MODE_PRIVATE)
 
         dbAdapter = DatabaseAdapter(sharedPrefs.getString(getString(R.string.preferences_key_email),
-            "NOT FOUND"))
+            getString(R.string.not_found)))
 
         disciplineTitle = intent.getStringExtra("disciplineTitle")
         branchTitle = intent.getStringExtra("branchTitle")
@@ -74,6 +72,7 @@ class CreateArticleActivity : AppCompatActivity() {
             createArticleScrollView, false)
         subsForm.buttonRemoveSubsForm.setOnClickListener {
             createArticleScrollView.createArticleScrollContainer.removeView(subsForm)
+            subsectionFormList.remove(subsForm)
         }
         subsectionFormList.add(subsForm)
         createArticleScrollView.createArticleScrollContainer.addView(subsForm)
@@ -87,6 +86,7 @@ class CreateArticleActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         if (articleTitle != null) {
+            createArticleProgressBar.visibility = ProgressBar.VISIBLE
             var isContentReadingStarted = false
             autoUpdate = Timer()
             autoUpdate.schedule(object : TimerTask() {
@@ -124,18 +124,20 @@ class CreateArticleActivity : AppCompatActivity() {
     }
 
     private fun fillContent() {
+        createArticleProgressBar.visibility = ProgressBar.INVISIBLE
         subsectionList.sortBy { it.order }
-        var index = 0
         for (subsection in subsectionList) {
             val subsForm = layoutInflater.inflate(R.layout.template_subsection_form,
                 createArticleScrollView, false)
-            subsForm.buttonRemoveSubsForm.setOnClickListener {
-                createArticleScrollView.createArticleScrollContainer.removeView(subsForm)
-            }
-
             subsForm.createArticleSubsTitleEdit.setText(subsection.title)
             subsForm.createArticleIsLatex.isChecked = subsection.content!!.isLatex
             subsForm.createArticleSubsText.setText(subsection.content!!.text)
+            subsForm.buttonRemoveSubsForm.setOnClickListener {
+                createArticleScrollView.createArticleScrollContainer.removeView(subsForm)
+                subsectionFormList.remove(subsForm)
+                subsectionTitleListToRemove.add(subsection.title)
+            }
+
             subsectionFormList.add(subsForm)
             createArticleScrollView.createArticleScrollContainer.addView(subsForm)
         }
@@ -149,12 +151,24 @@ class CreateArticleActivity : AppCompatActivity() {
         dbAdapter.setArticle(createArticleEditText.text.toString())
         Log.i(tag, createArticleEditText.text.toString());
         var index = 0
+        val newSubsTitles = mutableListOf<String>()
         for (form in subsectionFormList) {
+            newSubsTitles.add(form.createArticleSubsTitleEdit.text.toString())
             dbAdapter.setSubsection(form.createArticleSubsTitleEdit.text.toString(), index)
             dbAdapter.setSubsectionContent(form.createArticleSubsText.text.toString(),
                 form.createArticleIsLatex.isChecked)
             dbAdapter.writeInfoToDB()
             index += 1
+        }
+
+        for (subsectionTitle in subsectionTitleList) {
+            if (newSubsTitles.indexOf(subsectionTitle) == -1) {
+                subsectionTitleListToRemove.add(subsectionTitle)
+            }
+        }
+        for (subsectionToRemove in subsectionTitleListToRemove) {
+            dbAdapter.removeSubsection(disciplineTitle!!, branchTitle!!,
+                articleTitle!!, subsectionToRemove)
         }
         toDisciplineActivity()
     }

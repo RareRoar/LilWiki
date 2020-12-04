@@ -8,6 +8,17 @@
     tools:context=".ArticleActivity"
     android:id="@+id/constraintLayout">
 
+    <ProgressBar
+        android:id="@+id/articleProgressBar"
+        android:layout_width="119dp"
+        android:layout_height="121dp"
+        android:layout_marginStart="144dp"
+        android:layout_marginTop="320dp"
+        android:indeterminateDrawable="@drawable/spinner_png"
+        android:indeterminateOnly="true"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <LinearLayout
         android:id="@+id/contentsView"
         android:layout_width="275dp"

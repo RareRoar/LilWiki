@@ -1,16 +1,13 @@
-package com.example.lilwiki
+package com.example.lilwiki.patterns
 
 import android.util.Log
-import com.google.android.gms.tasks.Task
-import com.google.android.gms.tasks.TaskCompletionSource
-import com.google.android.gms.tasks.Tasks
+import com.example.lilwiki.ArticleActivity
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.getValue
 import java.lang.NullPointerException
-import java.util.concurrent.Semaphore
 
 
 class DatabaseAdapter(userEmail: String?) {
@@ -26,7 +23,6 @@ class DatabaseAdapter(userEmail: String?) {
         const val textKey = "text"
         const val isLatexKey = "isLatex"
     }
-
 
     init {
         if (userEmail == null) {
@@ -44,6 +40,7 @@ class DatabaseAdapter(userEmail: String?) {
     private var articleTitle : String? = null
     private var subsectionTitle : String? = null
     private var subsectionOrder : Int? = null
+
     data class SubsectionContent(
         var text: String,
         var isLatex: Boolean
@@ -104,26 +101,12 @@ class DatabaseAdapter(userEmail: String?) {
 
     }
 
-    /*
-    private fun validateContenList() : Boolean {
-        var contentListValidation = true
-        if (subsectionContentList != null) {
-            for (element in subsectionContentList!!) {
-                contentListValidation = contentListValidation && validateInt(element.order)
-            }
-        } else {
-            return false
-        }
-        return contentListValidation
-    } */
-
     public fun validateData() : Boolean {
         return validateString(disciplineTitle) &&
                 validateString(branchTitle) &&
                 validateString(articleTitle) &&
                 validateString(subsectionTitle) &&
-                validateInt(subsectionOrder) /*&&
-                validateContenList()*/
+                validateInt(subsectionOrder)
     }
 
     public fun emptyAdapter() {
@@ -137,9 +120,8 @@ class DatabaseAdapter(userEmail: String?) {
 
     private fun composeMapOfSubsectionContent(subContent: SubsectionContent) : Map<String, Any?> {
         return mapOf<String, Any?>(
-            //Keys.contentOrderKey to subContent.order,
-            Keys.textKey to subContent.text,
-            Keys.isLatexKey to subContent.isLatex
+            textKey to subContent.text,
+            isLatexKey to subContent.isLatex
         )
     }
 
@@ -147,8 +129,8 @@ class DatabaseAdapter(userEmail: String?) {
         if (validateInt(subsectionOrder) && subsectionContent != null) {
             val mappedContent = composeMapOfSubsectionContent(subsectionContent!!)
             return mapOf<String, Any?>(
-                Keys.subsectionOrderKey to subsectionOrder,
-                Keys.contentKey to mappedContent
+                subsectionOrderKey to subsectionOrder,
+                contentKey to mappedContent
             )
         }
         else {
@@ -157,88 +139,11 @@ class DatabaseAdapter(userEmail: String?) {
         }
     }
 
-    private fun appendDisciplineList() {
-        databaseRef.child("users").child(username).child("disciplineList").orderByKey().
-        addListenerForSingleValueEvent(object :
-            ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                var index = 0
-                var isUpdate = false
-                var bufferString: String? = dataSnapshot.child(index.toString()).getValue<String>()
-                while (bufferString != null) {
-                    if (bufferString == disciplineTitle) {
-                        isUpdate = true
-                        break
-                    }
-                    index += 1
-                    bufferString = dataSnapshot.child(index.toString()).getValue<String>()
-                }
-                databaseRef.child("users").child(username).child("disciplineList")
-                    .child(index.toString()).setValue(disciplineTitle)
-                Log.i(tag, "Successfully written discipline title.")
-            }
-
-            override fun onCancelled(databaseError: DatabaseError) {
-                Log.w(tag, "disciplineList.append failed.", databaseError.toException())
-            }
-        })
-    }
-
-    private fun appendBranchList() {
-        databaseRef.child("users").child(username).child(disciplineTitle!!).
-        child("branchList").orderByKey().
-        addListenerForSingleValueEvent(object :
-            ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                var index = 0
-                var isUpdate = false
-                var bufferString: String? = dataSnapshot.child(index.toString()).getValue<String>()
-                while (bufferString != null) {
-                    if (bufferString == branchTitle) {
-                        isUpdate = true
-                        break
-                    }
-                    index += 1
-                    bufferString = dataSnapshot.child(index.toString()).getValue<String>()
-                }
-                databaseRef.child("users").child(username).child(disciplineTitle!!).
-                child("branchList").child(index.toString()).setValue(branchTitle)
-                Log.i(tag, "Successfully written branch title.")
-            }
-
-            override fun onCancelled(databaseError: DatabaseError) {
-                Log.w(tag, "branchList.append failed.", databaseError.toException())
-            }
-        })
-    }
-
-    private fun appendArticleList() {
-        databaseRef.child("users").child(username).child(disciplineTitle!!).
-        child(branchTitle!!).child("articleList").orderByKey().
-        addListenerForSingleValueEvent(object :
-            ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                var index = 0
-                var isUpdate = false
-                var bufferString: String? = dataSnapshot.child(index.toString()).getValue<String>()
-                while (bufferString != null) {
-                    if (bufferString == articleTitle) {
-                        isUpdate = true
-                        break
-                    }
-                    index += 1
-                    bufferString = dataSnapshot.child(index.toString()).getValue<String>()
-                }
-                databaseRef.child("users").child(username).child(disciplineTitle!!)
-                    .child(branchTitle!!).child("articleList")
-                    .child(index.toString()).setValue(articleTitle)
-                Log.i(tag, "Successfully written article title.")
-            }
-
-            override fun onCancelled(databaseError: DatabaseError) {
-                Log.w(tag, "articleList.append failed.", databaseError.toException())
-            }
-        })
+    public fun removeSubsection(disciplineTitle: String, branchTitle: String,
+                             articleTitle: String, subsectionTitle: String) {
+        databaseRef.child("users").child(username).
+        child(disciplineTitle).child(branchTitle).child(articleTitle).
+        child(subsectionTitle).removeValue()
     }
 
     public fun writeInfoToDB() {
@@ -247,7 +152,7 @@ class DatabaseAdapter(userEmail: String?) {
             throw IllegalArgumentException("Attempt to write invalid data into Firebase RT DB")
         }
         val childUpdates = hashMapOf<String, Any>(
-            "${Keys.root}/${username}/${disciplineTitle}/${branchTitle}/" +
+            "$root/${username}/${disciplineTitle}/${branchTitle}/" +
                     "${articleTitle}/${subsectionTitle}" to composeMapOfSubsection()
         )
         databaseRef.updateChildren(childUpdates).
@@ -257,30 +162,12 @@ class DatabaseAdapter(userEmail: String?) {
         addOnFailureListener {
             Log.w(tag, "A subsection writing to Firebase RT DB has failed.")
         }
-
-        databaseRef.child("users").child(username).child(disciplineTitle!!).
-        child(branchTitle!!).child(articleTitle!!).child("subsectionList").orderByKey().
-        addListenerForSingleValueEvent(object :
-            ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                databaseRef.child("users").child(username).child(disciplineTitle!!)
-                    .child(branchTitle!!).child(articleTitle!!).child("subsectionList").
-                    child(dataSnapshot.childrenCount.toString()).setValue(subsectionTitle)
-                Log.i(tag, "Successfully written subsection title.")
-            }
-
-            override fun onCancelled(databaseError: DatabaseError) {
-                Log.w(tag, "subsectionList.append failed.", databaseError.toException())
-            }
-        })
-        appendDisciplineList()
-        appendBranchList()
-        appendArticleList()
         Log.i(tag, "Writing info to Firebase RT DB completed.")
     }
 
     public fun getDisciplineTitleList(discTitleList : MutableList<String>,
-                                      completionStatus : CompletionStatus) {
+                                      completionStatus : CompletionStatus
+    ) {
 
         Log.i(tag, "Reading begins.")
         completionStatus.setFalse()
@@ -290,8 +177,7 @@ class DatabaseAdapter(userEmail: String?) {
             object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     for (discipline in snapshot.children) {
-                        if (discipline.key.toString() != "disciplineList")
-                            discTitleList.add(discipline.key.toString())
+                        discTitleList.add(discipline.key.toString())
                     }
                     completionStatus.setTrue()
                     Log.i(tag, "Reading complete.")
@@ -301,41 +187,20 @@ class DatabaseAdapter(userEmail: String?) {
                     Log.w(tag, "Cannot get branch title list.")
                 }
             })
-/*child("disciplineList").
-        addValueEventListener(
-            object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    Log.i(tag, "Reading continues.")
-                    var index = 0
-                    var bufferString: String? = snapshot.child(index.toString()).getValue<String>()
-                    while (bufferString != null) {
-                        discTitleList.add(bufferString.toString())
-                        index += 1
-                        bufferString = snapshot.child(index.toString()).getValue<String>()
-                    }
-                    completionStatus.setTrue()
-                    Log.i(tag, "Reading complete.")
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    Log.w(tag, "Cannot get discipline title list.")
-                }
-            }
-        )*/
     }
 
     public fun getBranchTitleList(branchTitleList : MutableList<String>, disciplineTitle: String,
-                                  completionStatus : CompletionStatus) {
+                                  completionStatus : CompletionStatus
+    ) {
         completionStatus.setFalse()
         branchTitleList.clear()
         databaseRef.child("users").child(username).
-        child(disciplineTitle).//child("branchList").
+        child(disciplineTitle).
         addListenerForSingleValueEvent(
             object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     for (branch in snapshot.children) {
-                        if (branch.key.toString() != "branchList")
-                            branchTitleList.add(branch.key.toString())
+                        branchTitleList.add(branch.key.toString())
                     }
                     completionStatus.setTrue()
                     Log.i(tag, "Reading complete.")
@@ -345,29 +210,11 @@ class DatabaseAdapter(userEmail: String?) {
                     Log.w(tag, "Cannot get branch title list.")
                 }
             })
-        /*addValueEventListener(
-            object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    var index = 0
-                    var bufferString: String? = snapshot.child(index.toString()).getValue<String>()
-                    while (bufferString != null) {
-                        branchTitleList.add(bufferString.toString())
-                        index += 1
-                        bufferString = snapshot.child(index.toString()).getValue<String>()
-                    }
-                    completionStatus.setTrue()
-                    Log.i(tag, "Reading complete.")
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    Log.w(tag, "Cannot get branch title list.")
-                }
-            }
-        )*/
     }
 
     public fun getArticleTitleList(articleTitleList : MutableList<String>, disciplineTitle: String,
-    branchTitle: String, completionStatus : CompletionStatus) {
+    branchTitle: String, completionStatus : CompletionStatus
+    ) {
         completionStatus.setFalse()
         articleTitleList.clear()
         databaseRef.child("users").child(username).
@@ -376,8 +223,7 @@ class DatabaseAdapter(userEmail: String?) {
                     object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         for (article in snapshot.children) {
-                            if (article.key.toString() != "articleList")
-                                articleTitleList.add(article.key.toString())
+                            articleTitleList.add(article.key.toString())
                         }
                         completionStatus.setTrue()
                         Log.i(tag, "Reading complete.")
@@ -387,47 +233,24 @@ class DatabaseAdapter(userEmail: String?) {
                         Log.w(tag, "Cannot get branch title list.")
                     }
                 })
-        /*child("articleList").
-        addValueEventListener(
-            object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    var index = 0
-                    var bufferString: String? = snapshot.child(index.toString()).getValue<String>()
-                    while (bufferString != null) {
-                        articleTitleList.add(bufferString.toString())
-                        index += 1
-                        bufferString = snapshot.child(index.toString()).getValue<String>()
-                    }
-                    completionStatus.setTrue()
-                    Log.i(tag, "Reading complete.")
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    Log.w(tag, "Cannot get branch title list.")
-                }
-            }
-        )*/
     }
 
     public fun getSubsectionTitleList(subsectionTitleList : MutableList<String>,
                                       subsectionList : MutableList<ArticleActivity.Subsection>,
                                       disciplineTitle: String, branchTitle: String,
-                                      articleTitle: String, completionStatus : CompletionStatus) {
+                                      articleTitle: String, completionStatus : CompletionStatus
+    ) {
         completionStatus.setFalse()
         subsectionTitleList.clear()
         databaseRef.child("users").child(username).
         child(disciplineTitle).child(branchTitle).
-        child(articleTitle).child("subsectionList").
-        addValueEventListener(
+        child(articleTitle).
+        addListenerForSingleValueEvent(
             object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    var index = 0
-                    var bufferString: String? = snapshot.child(index.toString()).getValue<String>()
-                    while (bufferString != null) {
-                        subsectionTitleList.add(bufferString.toString())
-                        subsectionList.add(ArticleActivity.Subsection(bufferString.toString()))
-                        index += 1
-                        bufferString = snapshot.child(index.toString()).getValue<String>()
+                    for (subsection in snapshot.children) {
+                        subsectionTitleList.add(subsection.key.toString())
+                        subsectionList.add(ArticleActivity.Subsection(subsection.key.toString()))
                     }
                     completionStatus.setTrue()
                     Log.i(tag, "Reading complete.")
@@ -443,25 +266,26 @@ class DatabaseAdapter(userEmail: String?) {
     public fun getSubsectionContent(subsectionList : MutableList<ArticleActivity.Subsection>,
                                     disciplineTitle: String, branchTitle: String,
                                     articleTitle: String, subsectionTitle : String,
-                                    completionStatus: CompletionStatus) {
+                                    completionStatus: CompletionStatus
+    ) {
         completionStatus.setFalse()
         databaseRef.child("users").child(username).
         child(disciplineTitle).child(branchTitle).child(articleTitle).child(subsectionTitle).
-                addValueEventListener(
+                addListenerForSingleValueEvent(
                     object : ValueEventListener {
                         override fun onDataChange(snapshot: DataSnapshot) {
                             val currentSubsection = subsectionList.
                             find { it.title == subsectionTitle }
                             currentSubsection?.order =
-                                snapshot.child("subsectionOrder").getValue<Int>()
-                            //val dbOrder =
-                            //    snapshot.child("content").child("order").getValue<Int>()
+                                snapshot.child("subsectionOrder")
+                                    .getValue<Int>()
                             val dbText =
-                                snapshot.child("content").child("text").getValue<String>()
+                                snapshot.child("content").child("text")
+                                    .getValue<String>()
                             val dbIsLatex =
-                                snapshot.child("content").child("isLatex").getValue<Boolean>()
-                            if (//dbOrder != null &&
-                                    dbText != null &&
+                                snapshot.child("content").child("isLatex")
+                                    .getValue<Boolean>()
+                            if (dbText != null &&
                                     dbIsLatex != null)
                                 currentSubsection?.content = SubsectionContent(dbText, dbIsLatex)
                             else
@@ -478,7 +302,7 @@ class DatabaseAdapter(userEmail: String?) {
     }
 
     public fun getSelectedArticles(pathList : MutableList<FullArticlePath>,
-                                      completionStatus : CompletionStatus, query : String) {
+                                   completionStatus : CompletionStatus, query : String) {
 
         Log.i(tag, "Reading begins.")
         completionStatus.setFalse()
@@ -496,24 +320,19 @@ class DatabaseAdapter(userEmail: String?) {
                         user = userSnapshot.key.toString()
                         Log.d("user", user)
                         for (disciplineSnapshot in userSnapshot.children) {
-                            if (disciplineSnapshot.key != "disciplineList") {
-                                discipline = disciplineSnapshot.key.toString()
-                                for (branchSnapshot in disciplineSnapshot.children) {
-                                    if (branchSnapshot.key != "branchList") {
-                                        branch = branchSnapshot.key.toString()
-                                        for (articleSnapshot in branchSnapshot.children) {
-                                            if (articleSnapshot.key != "articleList" &&
-                                                    articleSnapshot.key.toString()
-                                                        .contains(query, true)) {
-                                                article = articleSnapshot.key.toString()
-                                                val fullPath = FullArticlePath(
-                                                    user, discipline,
-                                                    branch, article
-                                                )
-                                                if (fullPath.validate()) {
-                                                    pathList.add(fullPath)
-                                                }
-                                            }
+                            discipline = disciplineSnapshot.key.toString()
+                            for (branchSnapshot in disciplineSnapshot.children) {
+                                branch = branchSnapshot.key.toString()
+                                for (articleSnapshot in branchSnapshot.children) {
+                                    if (articleSnapshot.key.toString()
+                                            .contains(query, true)) {
+                                        article = articleSnapshot.key.toString()
+                                        val fullPath = FullArticlePath(
+                                            user, discipline,
+                                            branch, article
+                                        )
+                                        if (fullPath.validate()) {
+                                            pathList.add(fullPath)
                                         }
                                     }
                                 }
@@ -531,15 +350,11 @@ class DatabaseAdapter(userEmail: String?) {
         )
     }
 
-    //TODO update
-    //TODO delete
-
     public fun removeArticle(disciplineTitle: String, branchTitle: String,
     articleTitle: String) {
         databaseRef.child("users").child(username).
         child(disciplineTitle).child(branchTitle).child(articleTitle).removeValue()
     }
-
 }
 
 public class FullArticlePath(userParam : String, disciplineParam : String,

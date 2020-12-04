@@ -6,6 +6,18 @@
     android:layout_height="match_parent"
     tools:context=".CreateArticleActivity">
 
+    <ProgressBar
+        android:id="@+id/createArticleProgressBar"
+        android:layout_width="119dp"
+        android:layout_height="121dp"
+        android:layout_marginStart="144dp"
+        android:layout_marginTop="320dp"
+        android:indeterminateDrawable="@drawable/spinner_png"
+        android:indeterminateOnly="true"
+        android:visibility="invisible"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/floatingActionButton"
         android:layout_width="64dp"
@@ -15,7 +27,8 @@
         android:clickable="true"
         app:layout_constraintStart_toEndOf="@+id/createArticleButton"
         app:layout_constraintTop_toBottomOf="@+id/createArticleScrollView"
-        app:srcCompat="@android:drawable/ic_menu_add" />
+        app:srcCompat="@android:drawable/ic_menu_add"
+        android:focusable="true" />
 
     <EditText
         android:id="@+id/createArticleEditText"

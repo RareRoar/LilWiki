@@ -1,21 +1,17 @@
 package com.example.lilwiki
 
-import android.app.AlertDialog
 import android.app.SearchManager
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
 import android.content.Intent
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.*
-import com.google.android.gms.common.internal.Objects
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.Query
+import com.example.lilwiki.patterns.AuthFacade
+import com.example.lilwiki.patterns.CompletionStatus
+import com.example.lilwiki.patterns.DatabaseAdapter
 import kotlinx.android.synthetic.main.activity_discipline.*
-import kotlinx.android.synthetic.main.activity_select_discipline.*
 import java.util.*
 
 
@@ -118,7 +114,6 @@ class DisciplineActivity : AppCompatActivity() {
 
     }
 
-
     override fun onResume() {
         super.onResume()
         autoUpdate = Timer()
@@ -133,26 +128,19 @@ class DisciplineActivity : AppCompatActivity() {
         }, 0, 500)
     }
 
-    override fun onPause() {
-        super.onPause()
-        //autoUpdate.cancel()
-    }
-
     private fun updateUI() {
 
         mainLinearLayout.removeAllViews()
         val n = disciplineTitleList.size - 1 - disciplineTitleList.size % 2
         for (i in 0..n step 2) {
-            mainLinearLayout.addView(buildPairLayout(disciplineTitleList[i], disciplineTitleList[i + 1]))
+            mainLinearLayout.addView(buildPairLayout(disciplineTitleList[i],
+                disciplineTitleList[i + 1]))
         }
 
-        Log.i(tag, "here")
         if (n != disciplineTitleList.size - 1)
-            mainLinearLayout.addView(buildPairLayout(disciplineTitleList[if (n == -1) 0 else n+1], "+"))
+            mainLinearLayout.addView(buildPairLayout(disciplineTitleList[if (n == -1) 0 else n+1],
+                "+"))
         else
             mainLinearLayout.addView(buildPairLayout("+", ""))
-
-
     }
-
 }

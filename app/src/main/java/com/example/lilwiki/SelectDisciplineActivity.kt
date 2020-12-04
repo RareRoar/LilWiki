@@ -2,15 +2,15 @@ package com.example.lilwiki
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.graphics.Typeface
-import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import com.example.lilwiki.patterns.CompletionStatus
+import com.example.lilwiki.patterns.DatabaseAdapter
 import kotlinx.android.synthetic.main.activity_select_discipline.*
 import java.util.*
 
@@ -19,10 +19,8 @@ class SelectDisciplineActivity : AppCompatActivity() {
     private lateinit var dbAdapter : DatabaseAdapter
     private lateinit var autoUpdate : Timer
     private  var disciplineTitleList = mutableListOf<String>()
-    val compStatus = CompletionStatus()
-    val context = this
-
-
+    private val compStatus = CompletionStatus()
+    private val context = this
     private var chosenDiscipline : String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,6 +51,11 @@ class SelectDisciplineActivity : AppCompatActivity() {
     }
 
     private fun updateUI() {
+
+        disciplineSpinner.visibility = Spinner.VISIBLE
+        buttonDiscNext.visibility = Button.VISIBLE
+        newDisciplineEdit.visibility = EditText.VISIBLE
+
         disciplineTitleList.add("#")
         val adapter: ArrayAdapter<String> = object: ArrayAdapter<String>(
             context,
@@ -69,34 +72,17 @@ class SelectDisciplineActivity : AppCompatActivity() {
                     convertView,
                     parent
                 ) as TextView
-
-                // set item text style and font
                 view.setTypeface(Typeface.SANS_SERIF, Typeface.BOLD)
-
-                // set spinner item padding
                 view.setPadding(
                     25.toDp(context), // left
                     10.toDp(context), // top
                     50.toDp(context), // right
                     10.toDp(context) // bottom
                 )
-
-                // alternate item style
-                if (position %2 == 1){
-                    view.background = ColorDrawable(Color.parseColor("#F0FFF0"))
-                }else{
-                    view.background = ColorDrawable(Color.parseColor("#FFFFF0"))
-                }
-
                 return view
             }
         }
-
-        // finally, data bind spinner with adapter
         disciplineSpinner.adapter = adapter
-
-
-        // spinner on item selected listener
         disciplineSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>,
@@ -138,7 +124,7 @@ class SelectDisciplineActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    fun Int.toDp(context: Context):Int = TypedValue.applyDimension(
+    private fun Int.toDp(context: Context):Int = TypedValue.applyDimension(
         TypedValue.COMPLEX_UNIT_DIP,this.toFloat(),context.resources.displayMetrics
     ).toInt()
 }

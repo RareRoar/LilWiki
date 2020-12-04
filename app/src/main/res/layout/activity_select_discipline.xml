@@ -12,6 +12,7 @@
         android:layout_height="84dp"
         android:layout_marginStart="60dp"
         android:layout_marginTop="128dp"
+        android:visibility="invisible"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -33,6 +34,7 @@
         android:layout_marginStart="160dp"
         android:layout_marginTop="43dp"
         android:text="@string/next"
+        android:visibility="invisible"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/newDisciplineEdit" />
 
@@ -47,6 +49,7 @@
         android:hint="@string/prompt_discipline"
         android:inputType="textPersonName"
         android:textSize="20sp"
+        android:visibility="invisible"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/disciplineSpinner" />
 </androidx.constraintlayout.widget.ConstraintLayout>

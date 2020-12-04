@@ -11,9 +11,7 @@
         android:theme="@style/Theme.AppCompat.DayNight">
         <activity android:name=".SearchActivity">
         </activity>
-        <activity
-            android:name=".SettingsActivity"
-            android:label="@string/title_activity_settings" />
+        <activity android:name=".SettingsActivity"/>
         <activity android:name=".CreateArticleActivity" />
         <activity android:name=".SelectBranchActivity" />
         <activity android:name=".SelectDisciplineActivity" />

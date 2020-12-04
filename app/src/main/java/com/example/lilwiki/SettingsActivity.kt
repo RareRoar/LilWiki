@@ -5,13 +5,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.CompoundButton
-import android.widget.RadioGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
-import androidx.preference.PreferenceFragmentCompat
-import kotlinx.android.synthetic.main.settings_activity.*
+import com.example.lilwiki.patterns.SQLiteAdapter
+import kotlinx.android.synthetic.main.activity_settings.*
 
 
 class SettingsActivity : AppCompatActivity() {
@@ -24,26 +23,21 @@ class SettingsActivity : AppCompatActivity() {
         PUBLIC
     }
 
-    enum class Language {
-        ENG,
-        RUS
-    }
-
     companion object {
         var isDarkTheme = true
-        var language = Language.ENG
         var searchMode = SearchMode.PUBLIC
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.settings_activity)
+        setContentView(R.layout.activity_settings)
 
         val sharedPrefs = getSharedPreferences(getString(R.string.shared_prefs_storage_name),
             Context.MODE_PRIVATE)
 
-        sqlAdapter = SQLiteAdapter(this, sharedPrefs.getString(getString(R.string.preferences_key_email),
-            "NOT FOUND").toString())
+        sqlAdapter = SQLiteAdapter(this,
+            sharedPrefs.getString(getString(R.string.preferences_key_email),
+            getString(R.string.not_found)).toString())
 
         Log.i(tag, "Loading init settings")
 
@@ -57,13 +51,10 @@ class SettingsActivity : AppCompatActivity() {
             changeTheme(false)
         }
 
-        Log.i(tag, "Changes theme")
-        //TODO initial
         switchTheme.isChecked = isDarkTheme
-        switchTheme.setOnCheckedChangeListener { _: CompoundButton,
-                                                 newState: Boolean ->
+        switchTheme.setOnCheckedChangeListener {
+                _: CompoundButton, newState: Boolean ->
             isDarkTheme = newState
-
         }
         buttonSaveSettings.setOnClickListener { saveSettings() }
     }
@@ -78,14 +69,13 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun saveSettings() {
         val theme = if (isDarkTheme) "dark" else "light"
-        //val language = if (spinnerLanguages.selectedItem.toString() == "English") "en" else "ru"
         val searchMode = if (spinnerModes.selectedItemPosition == 0) "private" else "public"
         sqlAdapter.saveSettings(theme, searchMode)
         changeTheme(isDarkTheme)
         val sharedPrefs = getSharedPreferences(getString(R.string.shared_prefs_storage_name),
             Context.MODE_PRIVATE)
         with (sharedPrefs.edit()) {
-            putString(getString(com.example.lilwiki.R.string.preferences_search_mode),
+            putString(getString(R.string.preferences_search_mode),
                 searchMode)
             apply()
         }

@@ -1,6 +1,5 @@
-package com.example.lilwiki
+package com.example.lilwiki.patterns
 
-import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
@@ -14,10 +13,12 @@ class SQLiteAdapter(activityParam: AppCompatActivity, emailParam : String) {
     private var db : SQLiteDatabase
 
     init {
-        db = context.baseContext.openOrCreateDatabase("lilwikiapp.db", MODE_PRIVATE, null)
+        db = context.baseContext.openOrCreateDatabase("lilwikiapp.db",
+            MODE_PRIVATE, null)
         db.execSQL(
             "CREATE TABLE IF NOT EXISTS Settings (user TEXT NOT NULL UNIQUE, id_theme INTEGER NOT NULL, id_mode INTEGER NOT NULL, PRIMARY KEY(user));")
-        var query = db.rawQuery("SELECT COUNT(*) FROM Settings WHERE user='${username}';", null)
+        var query = db.rawQuery("SELECT COUNT(*) FROM Settings WHERE user='${username}';",
+            null)
         if (query.moveToFirst()) {
             if (query.getInt(0) == 0) {
                 db.execSQL("INSERT INTO Settings(user, id_theme, id_mode) VALUES ('${username}', 1, 1);")
@@ -44,8 +45,10 @@ class SQLiteAdapter(activityParam: AppCompatActivity, emailParam : String) {
     }
 
     public fun getSettings() : Map<String, String> {
-        db = context.baseContext.openOrCreateDatabase("lilwikiapp.db", MODE_PRIVATE, null)
-        val query = db.rawQuery("SELECT id_theme, id_mode FROM Settings WHERE user='${username}';", null)
+        db = context.baseContext.openOrCreateDatabase("lilwikiapp.db",
+            MODE_PRIVATE, null)
+        val query = db.rawQuery("SELECT id_theme, id_mode FROM Settings WHERE user='${username}';",
+            null)
         if (query.moveToFirst()) {
             val idTheme = query.getInt(0)
             val idMode = query.getInt(1)
@@ -61,7 +64,6 @@ class SQLiteAdapter(activityParam: AppCompatActivity, emailParam : String) {
         db = context.baseContext.openOrCreateDatabase("lilwikiapp.db", MODE_PRIVATE, null)
         val idTheme = if (theme == "light") 1 else 2
         val idMode = if (mode == "private") 1 else 2
-        //db.execSQL("INSERT INTO Settings(id, id_theme, id_language) VALUES ('${username}', ${idTheme}, ${idLanguage});")
         db.execSQL("UPDATE Settings SET id_theme=${idTheme}, id_mode=${idMode} WHERE user='${username}'")
         db.close()
     }

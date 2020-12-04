@@ -15,16 +15,9 @@ import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 
 class TestActivity : AppCompatActivity() {
-    val activ = this
-    var print = "init"
-
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_test)
-
-
     }
-
 }

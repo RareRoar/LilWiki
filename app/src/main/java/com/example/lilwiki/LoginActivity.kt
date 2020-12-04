@@ -2,7 +2,7 @@ package com.example.lilwiki
 
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -11,10 +11,12 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import com.example.lilwiki.patterns.AuthFacade
+import com.example.lilwiki.patterns.SQLiteAdapter
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import java.util.*
+import kotlinx.android.synthetic.main.activity_login.*
 
 
 class LoginActivity : AppCompatActivity() {
@@ -23,16 +25,39 @@ class LoginActivity : AppCompatActivity() {
     private val tag = "LoginActivity"
     private val authFacade = AuthFacade(this, tag)
     private lateinit var sqlAdapter : SQLiteAdapter
+    private lateinit var sharedPrefs: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        val sharedPrefs = getSharedPreferences(getString(R.string.shared_prefs_storage_name),
+        sharedPrefs = getSharedPreferences(getString(R.string.shared_prefs_storage_name),
             Context.MODE_PRIVATE)
+
+        auth = Firebase.auth
+        if (auth.currentUser != null) {
+            toDisciplineActivity()
+        }
+
+        val userName = sharedPrefs.getString(getString(R.string.preferences_key_email),
+            getString(R.string.not_found))
+        val password = sharedPrefs.getString(getString(R.string.preferences_key_password),
+            getString(R.string.not_found))
+        if (userName.toString() != getString(R.string.not_found) &&
+            password.toString() != getString(R.string.not_found)) {
+            authFacade.signInAccount(userName.toString(), password.toString())
+            loadSettings(sharedPrefs)
+            toDisciplineActivity()
+        }
+        findViewById<Button>(R.id.buttonSignIn).setOnClickListener { signInListener() }
+        findViewById<TextView>(R.id.textSignUp).setOnClickListener { signUpListener() }
+
+    }
+
+    private fun loadSettings(sharedPrefs : SharedPreferences) {
         sqlAdapter = SQLiteAdapter(this, sharedPrefs
             .getString(getString(R.string.preferences_key_email),
-            "NOT FOUND").toString())
+                getString(R.string.not_found)).toString())
         Log.i(tag, "Loading init settings")
         val initialSetting = sqlAdapter.getSettings()
         Log.i(tag, "Loaded")
@@ -42,29 +67,15 @@ class LoginActivity : AppCompatActivity() {
         else {
             changeTheme(false)
         }
-
-        auth = Firebase.auth
-        if (auth.currentUser != null) {
-            toDisciplineActivity()
+        with (sharedPrefs.edit()) {
+            putString(getString(R.string.preferences_search_mode),
+                initialSetting["mode"])
+            apply()
         }
-        //val sharedPrefs = getSharedPreferences(getString(R.string.shared_prefs_storage_name),
-        //    Context.MODE_PRIVATE)
-        val userName = sharedPrefs.getString(getString(R.string.preferences_key_email),
-            "NOT FOUND")
-        val password = sharedPrefs.getString(getString(R.string.preferences_key_password),
-            "NOT FOUND")
-        if (userName != "NOT FOUND" && password != "NOT FOUND") {
-            authFacade.signInAccount(userName.toString(), password.toString())
-            toDisciplineActivity()
-        }
-        findViewById<Button>(R.id.buttonSignIn).setOnClickListener { signInListener() }
-        findViewById<TextView>(R.id.textSignUp).setOnClickListener { signUpListener() }
-
     }
 
     private fun changeTheme(newState : Boolean) {
-        SettingsActivity.isDarkTheme = newState
-        if (SettingsActivity.isDarkTheme)
+        if (newState)
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
         else
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
@@ -83,9 +94,11 @@ class LoginActivity : AppCompatActivity() {
     private fun signInListener() {
         val email = findViewById<EditText>(R.id.emailEdit).text.toString()
         val password = findViewById<EditText>(R.id.passwordEdit).text.toString()
+
         if (authFacade.validateEmail(email) && authFacade.validatePassword(password)) {
             authFacade.signInAccount(email, password)
             authFacade.saveUserInfo(email, password)
+            loadSettings(sharedPrefs)
             toDisciplineActivity()
         } else {
             val message = StringBuilder("")
@@ -106,8 +119,6 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun signUpListener() {
-        //Toast.makeText(this, "create", Toast.LENGTH_SHORT).show()
         toCreateAccountActivity()
-        //toDisciplineActivity()
     }
 }

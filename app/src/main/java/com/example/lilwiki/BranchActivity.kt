@@ -3,10 +3,11 @@ package com.example.lilwiki
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import com.example.lilwiki.patterns.CompletionStatus
+import com.example.lilwiki.patterns.DatabaseAdapter
 import kotlinx.android.synthetic.main.activity_branch.*
 import java.util.*
 import kotlin.collections.ArrayList
@@ -90,7 +91,8 @@ class BranchActivity : AppCompatActivity() {
     }
 
     private fun composeLayout() {
-        textView.text = disciplineTitle
+        branchProgressBar.visibility = ProgressBar.INVISIBLE
+        branchTextView.text = disciplineTitle
         val expListViewContent = mutableListOf<MutableList<MutableMap<String, String>>>()
         val groupDataList: ArrayList<Map<String, String>> = ArrayList()
         for (branchTitle in branchTitleList) {
@@ -121,6 +123,5 @@ class BranchActivity : AppCompatActivity() {
                 expListViewContent[groupPosition][childPosition]["articleTitle"])
             false
         }
-        Log.d(tag, "composed")
     }
 }
